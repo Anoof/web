@@ -1,6 +1,8 @@
 Vue.mixin({
   data: function() {
-    const isMobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i).test(navigator.userAgent);
+    const isMobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i).test(
+      navigator.userAgent
+    );
 
     return {
       isMobile,
@@ -10,22 +12,26 @@ Vue.mixin({
   methods: {
     chatWindow: function(channel, dm) {
       let vm = this;
-      
+
       dm = dm || channel ? channel.indexOf('@') >= 0 : false;
       channel = channel || 'town-square';
 
       const hackathonTeamSlug = 'hackathons';
       const gitcoinTeamSlug = 'gitcoin';
-      const isHackathon = (document.hackathon_id !== null);
+      const isHackathon = document.hackathon_id !== null;
 
+      const url = `${vm.chatURL}/${
+        isHackathon ? hackathonTeamSlug : gitcoinTeamSlug
+      }/${dm ? 'messages' : 'channels'}/${dm ? '@' + channel : channel}`;
 
-      const url = `${vm.chatURL}/${isHackathon ? hackathonTeamSlug : gitcoinTeamSlug}/${dm ? 'messages' : 'channels'}/${dm ? '@' + channel : channel}`;
-
-      window.open(url, 'Loading', 'top=0,left=0,width=400,height=600,status=no,toolbar=no,location=no,menubar=no,titlebar=no');
+      window.open(
+        url,
+        'Loading',
+        'top=0,left=0,width=400,height=600,status=no,toolbar=no,location=no,menubar=no,titlebar=no'
+      );
     }
   }
 });
-
 
 Vue.component('modal', {
   props: [ 'user', 'size', 'id', 'issueDetails' ],
@@ -62,9 +68,7 @@ Vue.component('modal', {
       this.jqEl.bootstrapModal('hide');
     }
   }
-
 });
-
 
 Vue.component('select2', {
   props: [ 'options', 'value' ],
@@ -72,7 +76,8 @@ Vue.component('select2', {
   mounted: function() {
     let vm = this;
 
-    $(this.$el).select2({data: this.options})
+    $(this.$el)
+      .select2({ data: this.options })
       .val(this.value)
       .trigger('change')
       .on('change', function() {
@@ -82,13 +87,15 @@ Vue.component('select2', {
   watch: {
     value: function(value) {
       if (value === undefined) {
-        $(this.$el).empty().select2({data: this.options});
-      } else if ([...value].sort().join(',') !== [...$(this.$el).val()].sort().join(',')) {
+        $(this.$el).empty().select2({ data: this.options });
+      } else if (
+        [...value].sort().join(',') !== [...$(this.$el).val()].sort().join(',')
+      ) {
         $(this.$el).val(value).trigger('change');
       }
     },
     options: function(options) {
-      $(this.$el).empty().select2({data: options});
+      $(this.$el).empty().select2({ data: options });
     }
   },
   destroyed: function() {
@@ -109,7 +116,6 @@ Vue.component('loading-screen', {
               <div class="rhombus big"></div>
             </div>`
 });
-
 
 Vue.component('qrcode', {
   props: ['string'],
@@ -154,7 +160,6 @@ Vue.component('qrcode', {
   }
 });
 
-
 Vue.component('tribes-settings', {
   delimiters: [ '[[', ']]' ],
   props: ['tribe'],
@@ -165,20 +170,21 @@ Vue.component('tribes-settings', {
           modules: {
             toolbar: [
               [ 'bold', 'italic', 'underline' ],
-              [{'align': []}],
-              [{'list': 'ordered'}, {'list': 'bullet'}],
+              [{ align: [] }],
+              [{ list: 'ordered' }, { list: 'bullet' }],
               [ 'link', 'code-block' ],
               ['clean']
             ]
           },
           theme: 'snow',
-          placeholder: 'List out your tribe priorities to let contributors to know what they can request to work on'
+          placeholder:
+            'List out your tribe priorities to let contributors to know what they can request to work on'
         },
         description: {
           modules: {
             toolbar: [
               [ 'bold', 'italic', 'underline' ],
-              [{'align': []}],
+              [{ align: [] }],
               [ 'link', 'code-block' ],
               ['clean']
             ]
@@ -191,7 +197,6 @@ Vue.component('tribes-settings', {
   },
   methods: {}
 });
-
 
 Vue.component('project-directory', {
   delimiters: [ '[[', ']]' ],
@@ -224,7 +229,9 @@ Vue.component('project-directory', {
 
       const searchParams = new URLSearchParams(vm.params);
 
-      const apiUrlProjects = vm.projectsHasNext ? vm.projectsHasNext : `/api/v0.1/projects_fetch/?${searchParams.toString()}`;
+      const apiUrlProjects = vm.projectsHasNext
+        ? vm.projectsHasNext
+        : `/api/v0.1/projects_fetch/?${searchParams.toString()}`;
 
       const getProjects = fetchData(apiUrlProjects, 'GET');
 
@@ -235,10 +242,8 @@ Vue.component('project-directory', {
 
         vm.userProjects = [];
         if (vm.userId) {
-          vm.userProjects = vm.hackathonProjects.filter(
-            ({profiles}) => profiles.some(
-              ({id}) => id === parseInt(vm.userId, 10)
-            )
+          vm.userProjects = vm.hackathonProjects.filter(({ profiles }) =>
+            profiles.some(({ id }) => id === parseInt(vm.userId, 10))
           );
         }
         vm.projectsHasNext = response.next;
@@ -259,9 +264,9 @@ Vue.component('project-directory', {
       vm.hackathonProjects = [];
 
       vm.fetchProjects(1);
-
     },
-    bottomVisible: function() { // TODO: abstract this to the mixin, and have it take a callback which modifies the component state.
+    bottomVisible: function() {
+      // TODO: abstract this to the mixin, and have it take a callback which modifies the component state.
       let vm = this;
 
       const scrollY = window.scrollY;
@@ -305,11 +310,15 @@ Vue.component('project-directory', {
   },
   mounted() {
     this.fetchProjects();
-    this.$watch('params', function(newVal, oldVal) {
-      this.searchProjects();
-    }, {
-      deep: true
-    });
+    this.$watch(
+      'params',
+      function(newVal, oldVal) {
+        this.searchProjects();
+      },
+      {
+        deep: true
+      }
+    );
   },
   created() {
     // this.extractURLFilters();
@@ -318,9 +327,13 @@ Vue.component('project-directory', {
     if (this.isMobile) {
       this.showFilters = false;
     }
-    window.addEventListener('scroll', () => {
-      this.bottom = this.bottomVisible();
-    }, false);
+    window.addEventListener(
+      'scroll',
+      () => {
+        this.bottom = this.bottomVisible();
+      },
+      false
+    );
   },
   beforeDestroy() {
     window.removeEventListener('scroll', () => {
@@ -328,7 +341,6 @@ Vue.component('project-directory', {
     });
   }
 });
-
 
 Vue.component('showcase', {
   delimiters: [ '[[', ']]' ],
@@ -347,7 +359,7 @@ Vue.component('showcase', {
     };
   },
   filters: {
-    'markdownit': function(val) {
+    markdownit: function(val) {
       if (!val)
         return '';
       const _markdown = new markdownit({
@@ -355,10 +367,14 @@ Vue.component('showcase', {
         highlight: function(str, lang) {
           if (lang && hljs.getLanguage(lang)) {
             try {
-              return `<pre class="hljs"><code>${hljs.highlight(lang, str, true).value}</code></pre>`;
+              return `<pre class="hljs"><code>${
+                hljs.highlight(lang, str, true).value
+              }</code></pre>`;
             } catch (__) {}
           }
-          return `<pre class="hljs"><code>${sanitize(_markdown.utils.escapeHtml(str))}</code></pre>`;
+          return `<pre class="hljs"><code>${sanitize(
+            _markdown.utils.escapeHtml(str)
+          )}</code></pre>`;
         }
       });
 
@@ -375,20 +391,24 @@ Vue.component('showcase', {
       let vm = this;
 
       const url = `/tribe/${handle}/join/`;
-      const sendJoin = fetchData(url, 'POST', {}, {'X-CSRFToken': vm.csrf});
+      const sendJoin = fetchData(url, 'POST', {}, { 'X-CSRFToken': vm.csrf });
 
-      $.when(sendJoin).then((response) => {
-        if (response && response.is_member) {
-          this.getSponsor(handle).followed = true;
-        } else {
-          this.getSponsor(handle).followed = false;
-        }
-      }).fail((error) => {
-        console.log(error);
-      });
+      $.when(sendJoin)
+        .then((response) => {
+          if (response && response.is_member) {
+            this.getSponsor(handle).followed = true;
+          } else {
+            this.getSponsor(handle).followed = false;
+          }
+        })
+        .fail((error) => {
+          console.log(error);
+        });
     },
     getSponsor: function(handle) {
-      return this.sponsors.filter(sponsor => sponsor.org_name === handle)[0] || {};
+      return (
+        this.sponsors.filter((sponsor) => sponsor.org_name === handle)[0] || {}
+      );
     },
     addSpotlight: function() {
       let vm = this;
@@ -413,22 +433,27 @@ Vue.component('showcase', {
     saveShowcase: function() {
       let vm = this;
       const resource_url = `/api/v0.1/hackathon/${document.hackathonObj.id}/showcase/`;
-      const retrieveResources = fetchData(resource_url, 'POST', JSON.stringify({
-        content: vm.showcase.content,
-        top: vm.top,
-        spotlights: vm.spotlights,
-        prizes: vm.showcase.prizes
-      }), {'X-CSRFToken': vm.csrf});
+      const retrieveResources = fetchData(
+        resource_url,
+        'POST',
+        JSON.stringify({
+          content: vm.showcase.content,
+          top: vm.top,
+          spotlights: vm.spotlights,
+          prizes: vm.showcase.prizes
+        }),
+        { 'X-CSRFToken': vm.csrf }
+      );
 
       vm.isEditing = false;
 
-
-      $.when(retrieveResources).then((response) => {
-        _alert('Showcase info saved', 'success', 1000);
-      }).fail((error) => {
-        console.log(error);
-      });
-
+      $.when(retrieveResources)
+        .then((response) => {
+          _alert('Showcase info saved', 'success', 1000);
+        })
+        .fail((error) => {
+          console.log(error);
+        });
     }
   },
   mounted() {
@@ -451,18 +476,25 @@ Vue.component('project-card', {
       let vm = this;
 
       const url = '/api/v0.1/hackathon_project/set_winner/';
-      const markWinner = fetchData(url, 'POST', {
-        project_id: project.pk,
-        winner: $event ? 1 : 0
-      }, {'X-CSRFToken': vm.csrf});
+      const markWinner = fetchData(
+        url,
+        'POST',
+        {
+          project_id: project.pk,
+          winner: $event ? 1 : 0
+        },
+        { 'X-CSRFToken': vm.csrf }
+      );
 
-      $.when(markWinner).then(response => {
-        if (response.message) {
-          alert(response.message);
-        }
-      }).catch(err => {
-        console.log(err);
-      });
+      $.when(markWinner)
+        .then((response) => {
+          if (response.message) {
+            alert(response.message);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     projectModal() {
       let project = this.$props.project;
@@ -530,16 +562,58 @@ Vue.component('project-card', {
 });
 
 Vue.component('suggested-profiles', {
-  props: ['profiles'],
+  props: ['id'],
+  computed: {
+    orderedUsers: function() {
+      return _.orderBy(this.users, 'position_contributor', 'asc');
+    }
+  },
+  data: function() {
+    return {
+      users: []
+    };
+  },
+  mounted() {
+    this.fetchUsers();
+  },
+  methods: {
+    fetchUsers: function() {
+      let vm = this;
+
+      vm.isLoading = true;
+      vm.noResults = false;
+
+      let apiUrlUsers = `/api/v0.1/users_fetch/?user_filter=all&page=1&tribe=${vm.id}`;
+
+      var getUsers = fetchData(apiUrlUsers, 'GET');
+
+      $.when(getUsers).then(function(response) {
+        for (let item = 0; response.data.length > item; item++) {
+          if (!response.data[item].is_following) {
+            vm.users.push(response.data[item]);
+          }
+          if (vm.users.length === 10) {
+            break;
+          }
+        }
+
+        if (vm.users.length) {
+          vm.noResults = false;
+        } else {
+          vm.noResults = true;
+        }
+        vm.isLoading = false;
+      });
+    }
+  },
   template: `<div class="townsquare_nav-list my-2 tribe">
       <div id="suggested-tribes">
         <ul class="nav d-inline-block font-body col-lg-4 col-lg-11 pr-2" style="padding-right: 0">
-            <suggested-profile v-for="profile in profiles" :key="profile.id" :profile="profile" />
+            <suggested-profile v-for="profile in orderedUsers" :key="profile.id" :profile="profile" />
         </ul>
       </div>
     </div>`
 });
-
 
 Vue.component('suggested-profile', {
   props: ['profile'],
@@ -563,19 +637,21 @@ Vue.component('suggested-profile', {
       let vm = this;
 
       const url = `/tribe/${handle}/join/`;
-      const sendJoin = fetchData(url, 'POST', {}, {'X-CSRFToken': vm.csrf});
+      const sendJoin = fetchData(url, 'POST', {}, { 'X-CSRFToken': vm.csrf });
 
-      $.when(sendJoin).then((response) => {
-        if (response && response.is_member) {
-          vm.follow = true;
-          vm.follower_count += 1;
-        } else {
-          vm.follow = false;
-          vm.follower_count -= 1;
-        }
-      }).fail((error) => {
-        console.log(error);
-      });
+      $.when(sendJoin)
+        .then((response) => {
+          if (response && response.is_member) {
+            vm.follow = true;
+            vm.follower_count += 1;
+          } else {
+            vm.follow = false;
+            vm.follower_count -= 1;
+          }
+        })
+        .fail((error) => {
+          console.log(error);
+        });
     }
   },
   template: `
@@ -606,7 +682,6 @@ Vue.component('suggested-profile', {
 `
 });
 
-
 Vue.component('date-range-picker', {
   template: '#date-range-template',
   props: [ 'date', 'disabled' ],
@@ -625,26 +700,28 @@ Vue.component('date-range-picker', {
     let vm = this;
 
     this.$nextTick(function() {
-      window.$(this.$el).daterangepicker({
-        singleDatePicker: true,
-        startDate: moment().add(1, 'month'),
-        alwaysShowCalendars: false,
-        ranges: {
-          '1 week': [ moment().add(7, 'days'), moment().add(7, 'days') ],
-          '2 weeks': [ moment().add(14, 'days'), moment().add(14, 'days') ],
-          '1 month': [ moment().add(1, 'month'), moment().add(1, 'month') ],
-          '3 months': [ moment().add(3, 'month'), moment().add(3, 'month') ],
-          '1 year': [ moment().add(1, 'year'), moment().add(1, 'year') ]
-        },
-        'locale': {
-          'customRangeLabel': 'Custom',
-          'format': 'MM/DD/YYYY'
-        }
-      }).on('apply.daterangepicker', function(e, picker) {
-        vm.$emit('apply-daterangepicker', picker.startDate);
-        vm.newDate = picker.startDate.format('MM/DD/YYYY');
-      });
+      window
+        .$(this.$el)
+        .daterangepicker({
+          singleDatePicker: true,
+          startDate: moment().add(1, 'month'),
+          alwaysShowCalendars: false,
+          ranges: {
+            '1 week': [ moment().add(7, 'days'), moment().add(7, 'days') ],
+            '2 weeks': [ moment().add(14, 'days'), moment().add(14, 'days') ],
+            '1 month': [ moment().add(1, 'month'), moment().add(1, 'month') ],
+            '3 months': [ moment().add(3, 'month'), moment().add(3, 'month') ],
+            '1 year': [ moment().add(1, 'year'), moment().add(1, 'year') ]
+          },
+          locale: {
+            customRangeLabel: 'Custom',
+            format: 'MM/DD/YYYY'
+          }
+        })
+        .on('apply.daterangepicker', function(e, picker) {
+          vm.$emit('apply-daterangepicker', picker.startDate);
+          vm.newDate = picker.startDate.format('MM/DD/YYYY');
+        });
     });
   }
-
 });
