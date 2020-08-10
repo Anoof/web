@@ -590,7 +590,9 @@ Vue.component('suggested-profiles', {
       $.when(getUsers).then(function(response) {
         for (let item = 0; response.data.length > item; item++) {
           if (!response.data[item].is_following) {
-            vm.users.push(response.data[item]);
+            if (response.data[item].handle != document.contxt.github_handle) {
+              vm.users.push(response.data[item]);
+            }
           }
           if (vm.users.length === 10) {
             break;
